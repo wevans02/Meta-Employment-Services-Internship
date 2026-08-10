@@ -10,7 +10,7 @@ graph TD
     classDef default fill:#2d3748,stroke:#9ca3af,stroke-width:1.5px,color:#ffffff;
     linkStyle default stroke:#9ca3af,stroke-width:1.5px,color:#e5e7eb;
 
-    %% Unique Accent Colors (Legible on Dark Themes)
+    %% Unique Accent Colors
     classDef trigger fill:#b45309,stroke:#d97706,stroke-width:2px,color:#ffffff;
     classDef agent fill:#4338ca,stroke:#4f46e5,stroke-width:1.5px,color:#ffffff;
     classDef user fill:#047857,stroke:#059669,stroke-width:2px,color:#ffffff;
