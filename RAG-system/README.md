@@ -5,16 +5,8 @@ A production-grade Retrieval-Augmented Generation (RAG) system integrated direct
 ## System Architecture
 
 ```mermaid
+%%{init: { 'theme': 'dark', 'themeVariables': { 'lineColor': '#a1a1aa', 'labelColor': '#ffffff', 'primaryColor': '#1e293b', 'primaryTextColor': '#ffffff', 'actorLineColor': '#ffffff' }}}%%
 graph TD
-    %% Global Text and Line Styling for Dark Mode
-    classDef default fill:#1f2937,stroke:#9ca3af,stroke-width:1.5px,color:#f3f4f6;
-    linkStyle default stroke:#9ca3af,stroke-width:1.5px,color:#e5e7eb;
-
-    %% Unique Accent Colors
-    classDef teams fill:#3b5998,stroke:#6366f1,stroke-width:2px,color:#ffffff;
-    classDef oauth fill:#c2410c,stroke:#ea580c,stroke-width:2px,color:#ffffff;
-    classDef database fill:#065f46,stroke:#10b981,stroke-width:1.5px,color:#ffffff;
-
     %% Query Pipeline
     Teams[MS Teams Interface] -->|User Query| BotAPI[Teams Bot API Gateway]
     BotAPI -->|Vector Search| FAISS[FAISS Vector DB]
@@ -34,12 +26,6 @@ graph TD
     OAuthCheck -->|Unauthorized| Deny[Drop Request]
     
     OllamaEmbed -->|Generate Dense Vectors| Atlas[(MongoDB Atlas Cloud)]
-
-    %% Apply Classes
-    class Teams teams;
-    class OAuthCheck oauth;
-    class FAISS,Atlas database;
-
 ```
 
 ## Key Achievements & Metrics

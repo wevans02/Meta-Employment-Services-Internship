@@ -5,17 +5,8 @@ An automated AI workforce that eliminates manual regulatory discovery and docume
 ## System Architecture
 
 ```mermaid
+%%{init: { 'theme': 'dark', 'themeVariables': { 'lineColor': '#a1a1aa', 'labelColor': '#ffffff', 'primaryColor': '#1e293b', 'primaryTextColor': '#ffffff', 'actorLineColor': '#ffffff' }}}%%
 graph TD
-    %% Global Text and Line Styling for Dark Mode
-    classDef default fill:#2d3748,stroke:#9ca3af,stroke-width:1.5px,color:#ffffff;
-    linkStyle default stroke:#9ca3af,stroke-width:1.5px,color:#e5e7eb;
-
-    %% Unique Accent Colors
-    classDef trigger fill:#b45309,stroke:#d97706,stroke-width:2px,color:#ffffff;
-    classDef agent fill:#4338ca,stroke:#4f46e5,stroke-width:1.5px,color:#ffffff;
-    classDef user fill:#047857,stroke:#059669,stroke-width:2px,color:#ffffff;
-
-    %% Workflow Flow
     Trigger[Scheduled Sync / User Invocation] --> AgentLoop[Custom Asynchronous Agent Manager]
     
     subgraph Autonomous Orchestration Engine
@@ -26,12 +17,6 @@ graph TD
     
     DraftEngine -->|2. Generate Application Draft| Delivery[Document Packaging Module]
     Delivery -->|3. Route Final Markdown/Email File| User[End-User Reviewer]
-
-    %% Apply Classes
-    class Trigger trigger;
-    class AgentLoop,Finder,Filter,DraftEngine agent;
-    class Delivery,User user;
-
 ```
 
 ## Key Achievements & Metrics
