@@ -5,14 +5,8 @@ A containerized synchronization engine that bridges Microsoft 365 cloud data sto
 ## System Architecture
 
 ```mermaid
+%%{init: { 'theme': 'dark', 'themeVariables': { 'lineColor': '#a1a1aa', 'labelColor': '#ffffff', 'primaryColor': '#1e293b', 'primaryTextColor': '#ffffff', 'actorLineColor': '#ffffff' }}}%%
 graph TD
-    %% Styling
-    classDef cloud fill:#0078d4,stroke:#333,stroke-width:1px,color:#fff;
-    classDef container fill:#2496ed,stroke:#333,stroke-width:2px,color:#fff;
-    classDef database fill:#336791,stroke:#333,stroke-width:2px,color:#fff;
-    classDef analytics fill:#f2c811,stroke:#333,stroke-width:1px,color:#000;
-
-    %% Data Pipeline Flow
     MSLists[Microsoft Lists Cloud API] -->|Continuous State Checks| DockerSync[Python Sync Tool inside Docker]
     
     subgraph On-Premises Isolated Environment
@@ -24,14 +18,8 @@ graph TD
         end
     end
 
-    %% Analytics Reporting Loop
     PowerBI[Power BI Premium Gateway] -->|4. Live DirectQuery Pull| Postgres
     PowerBI -->|5. Render Real-Time Dashboard| UI[Embedded Report App UI]
-
-    class MSLists cloud;
-    class DockerSync container;
-    class Postgres,PreCalc database;
-    class PowerBI,UI analytics;
 ```
 
 ## Key Achievements & Metrics
