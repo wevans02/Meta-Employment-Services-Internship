@@ -1,6 +1,7 @@
 # Commercial Production Systems Portfolio
 
 This repository documents the production system designs, architectural patterns, and engineering decisions led during my tenure. Because the production source code is proprietary and confidential, this space serves as a transparent look into my technical problem-solving process, engineering maturity, and system design expertise.
+
 ---
 
 ## Project Directory
