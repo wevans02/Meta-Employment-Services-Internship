@@ -5,6 +5,7 @@ An automated AI workforce that eliminates manual regulatory discovery and docume
 ## System Architecture
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': 'transparent', 'edgeLabelBackground':'transparent', 'tertiaryColor': 'transparent'}}}%%
 graph TD
     %% Styling
     classDef start fill:#f9f,stroke:#333,stroke-width:1px;

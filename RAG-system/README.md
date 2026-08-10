@@ -5,6 +5,7 @@ A production-grade Retrieval-Augmented Generation (RAG) system integrated direct
 ## System Architecture
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': 'transparent', 'edgeLabelBackground':'transparent', 'tertiaryColor': 'transparent'}}}%%
 graph TD
     %% Styling
     classDef client fill:#3b5998,stroke:#333,stroke-width:2px,color:#fff;
