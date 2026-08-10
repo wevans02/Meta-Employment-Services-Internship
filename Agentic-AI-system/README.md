@@ -5,14 +5,18 @@ An automated AI workforce that eliminates manual regulatory discovery and docume
 ## System Architecture
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': 'transparent', 'edgeLabelBackground':'transparent', 'tertiaryColor': 'transparent'}}}%%
 graph TD
-    %% Styling
-    classDef start fill:#f9f,stroke:#333,stroke-width:1px;
-    classDef process fill:#bbf,stroke:#333,stroke-width:2px;
-    classDef output fill:#bef,stroke:#333,stroke-width:1px;
+    %% Global Text and Line Styling for Dark Mode
+    classDef default fill:#2d3748,stroke:#9ca3af,stroke-width:1.5px,color:#ffffff;
+    linkStyle default stroke:#9ca3af,stroke-width:1.5px,color:#e5e7eb;
 
-    Trigger[Scheduled Sync / User Invocaton] --> AgentLoop[Custom Asynchronous Agent Manager]
+    %% Unique Accent Colors (Legible on Dark Themes)
+    classDef trigger fill:#b45309,stroke:#d97706,stroke-width:2px,color:#ffffff;
+    classDef agent fill:#4338ca,stroke:#4f46e5,stroke-width:1.5px,color:#ffffff;
+    classDef user fill:#047857,stroke:#059669,stroke-width:2px,color:#ffffff;
+
+    %% Workflow Flow
+    Trigger[Scheduled Sync / User Invocation] --> AgentLoop[Custom Asynchronous Agent Manager]
     
     subgraph Autonomous Orchestration Engine
         AgentLoop -->|1. Target Web Scraping| Finder[Web Extraction Agent]
@@ -23,9 +27,11 @@ graph TD
     DraftEngine -->|2. Generate Application Draft| Delivery[Document Packaging Module]
     Delivery -->|3. Route Final Markdown/Email File| User[End-User Reviewer]
 
-    class Trigger start;
-    class AgentLoop,Finder,Filter,DraftEngine process;
-    class User,Delivery output;
+    %% Apply Classes
+    class Trigger trigger;
+    class AgentLoop,Finder,Filter,DraftEngine agent;
+    class Delivery,User user;
+
 ```
 
 ## Key Achievements & Metrics

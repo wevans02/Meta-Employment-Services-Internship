@@ -5,20 +5,22 @@ A production-grade Retrieval-Augmented Generation (RAG) system integrated direct
 ## System Architecture
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': 'transparent', 'edgeLabelBackground':'transparent', 'tertiaryColor': 'transparent'}}}%%
 graph TD
-    %% Styling
-    classDef client fill:#3b5998,stroke:#333,stroke-width:2px,color:#fff;
-    classDef security fill:#f96,stroke:#333,stroke-width:2px;
-    classDef engine fill:#9cf,stroke:#333,stroke-width:2px;
-    classDef storage fill:#bfb,stroke:#333,stroke-width:1px;
+    %% Global Text and Line Styling for Dark Mode
+    classDef default fill:#1f2937,stroke:#9ca3af,stroke-width:1.5px,color:#f3f4f6;
+    linkStyle default stroke:#9ca3af,stroke-width:1.5px,color:#e5e7eb;
+
+    %% Unique Accent Colors (Legible on Dark Themes)
+    classDef teams fill:#3b5998,stroke:#6366f1,stroke-width:2px,color:#ffffff;
+    classDef oauth fill:#c2410c,stroke:#ea580c,stroke-width:2px,color:#ffffff;
+    classDef database fill:#065f46,stroke:#10b981,stroke-width:1.5px,color:#ffffff;
 
     %% Query Pipeline
     Teams[MS Teams Interface] -->|User Query| BotAPI[Teams Bot API Gateway]
     BotAPI -->|Vector Search| FAISS[FAISS Vector DB]
     
     subgraph Local Hardware Acceleration
-        FAISS -->|SIMD Instruction Parallelism| CPU[Local Host CPU AVX Extensions]
+        FAISS -->|SIMD Parallelism| CPU[Local Host CPU AVX Extensions]
         CPU -->|~0.2s Context Retrieval| FAISS
     end
     
@@ -33,10 +35,11 @@ graph TD
     
     OllamaEmbed -->|Generate Dense Vectors| Atlas[(MongoDB Atlas Cloud)]
 
-    class Teams client;
-    class OAuthCheck security;
-    class BotAPI,LocalLLM,ContextEngine,OllamaEmbed engine;
-    class FAISS,Atlas storage;
+    %% Apply Classes
+    class Teams teams;
+    class OAuthCheck oauth;
+    class FAISS,Atlas database;
+
 ```
 
 ## Key Achievements & Metrics
