@@ -9,7 +9,7 @@ A production-grade Retrieval-Augmented Generation (RAG) system integrated direct
 graph TD
     %% Query Pipeline
     Teams[MS Teams Interface] -->|User Query| BotAPI[Teams Bot API Gateway]
-    BotAPI -->|Vector Search| FAISS[FAISS Vector DB]
+    BotAPI -->|FAISS Vector Search| FAISS[Vector DB]
     
     subgraph Local Hardware Acceleration
         FAISS -->|SIMD Parallelism| CPU[Local Host CPU AVX Extensions]
