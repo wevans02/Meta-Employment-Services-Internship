@@ -7,21 +7,34 @@ An automated AI workforce that eliminates manual regulatory discovery and docume
 ```mermaid
 %%{init: { 'theme': 'dark', 'themeVariables': { 'lineColor': '#a1a1aa', 'labelColor': '#ffffff', 'primaryColor': '#1e293b', 'primaryTextColor': '#ffffff', 'actorLineColor': '#ffffff' }}}%%
 graph TD
-    Trigger[Cron / Daily Scheduler] --> CacheCheck{URL in MongoDB Cache?}
+    %% Trigger & Cache Lookup
+    Start[Daily Cron Scheduler / Wake Up] --> CheckCache{Check MongoDB Cache<br/>for Opportunity URL}
     
-    CacheCheck -->|Yes| Skip[Skip Processing]
-    CacheCheck -->|No| Scraper[Web Scraper & Text Extractor]
+    CheckCache -->|URL Found| EndCached[Skip Execution & Sleep]
+    CheckCache -->|URL Not Found| Scraper[Web Scraper: Collect Primary & Target Page Text]
 
-    subgraph Autonomous Orchestration Engine
-        Scraper -->|Extracted Web Text| LLM[LLM API Engine]
-        LLM -->|Header, Keywords & Draft| HRSearch[BambooHR Asset Search]
-        HRSearch -->|Filter & Max 3 Files/Type| ZipEngine[File Downloader & Compressor]
+    %% Main Processing Subgraph
+    subgraph Core Automation Engine
+        Scraper -->|Raw Page Text| LLM[LLM API Engine]
+        
+        LLM -->|Generate| Draft[Application Draft & Header]
+        LLM -->|Extract| Keywords[File Search Keywords]
+        
+        Keywords --> BambooSearch[BambooHR Asset Search]
+        
+        subgraph Guardrail & Storage Pipeline
+            BambooSearch -->|Apply Limit: Max 3 Files / Category| Downloader[Download & Zip Compress Files]
+        Downloader -->|Cache Metadata & Draft| Mongo[(MongoDB Atlas Storage)]
+        end
     end
 
-    LLM -->|Store Draft & Meta| Mongo[(MongoDB Atlas)]
-    ZipEngine -->|Attach Compressed Package| Teams[MS Teams Notification Bot]
+    %% Delivery & Cleanup
+    Draft --> TeamsNotifier[MS Teams Notification Bot]
+    Downloader -->|Attach Compressed Assets| TeamsNotifier
     
-    Teams --> Cleanup[Local File Cleanup & Reset]
+    TeamsNotifier -->|Notify Users & Provide Link| EndUser[Staff / Reviewers]
+    TeamsNotifier -->|Trigger Post-Run| Cleanup[Local Directory File Cleanup]
+    Cleanup --> Sleep[Reset State for Next Day]
 ```
 
 ## Key Achievements & Metrics
