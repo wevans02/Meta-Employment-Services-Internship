@@ -19,12 +19,13 @@ graph TD
         
         LLM -->|Generate| Draft[Application Draft & Header]
         LLM -->|Extract| Keywords[File Search Keywords]
+
+        Draft -->|Cache URL & Draft text| Mongo[(MongoDB Atlas Storage)]
         
         Keywords --> BambooSearch[BambooHR Asset Search]
         
-        subgraph Guardrail & Storage Pipeline
+        subgraph File Processing Pipeline
             BambooSearch -->|Apply Limit: Max 3 Files / Category| Downloader[Download & Zip Compress Files]
-        Downloader -->|Cache Metadata & Draft| Mongo[(MongoDB Atlas Storage)]
         end
     end
 
