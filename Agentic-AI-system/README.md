@@ -6,36 +6,37 @@ An automated AI workforce that eliminates manual regulatory discovery and docume
 
 ```mermaid
 %%{init: { 'theme': 'dark', 'themeVariables': { 'lineColor': '#a1a1aa', 'labelColor': '#ffffff', 'primaryColor': '#1e293b', 'primaryTextColor': '#ffffff', 'actorLineColor': '#ffffff' }}}%%
-graph TD
-    %% Trigger & Cache Lookup
-    Start[Daily Cron Scheduler / Wake Up] --> CheckCache{Check MongoDB Cache<br/>for Opportunity URL}
-    
-    CheckCache -->|URL Found| EndCached[Skip Execution & Sleep]
-    CheckCache -->|URL Not Found| Scraper[Web Scraper: Collect Primary & Target Page Text]
-
-    %% Main Processing Subgraph
-    subgraph Core Automation Engine
-        Scraper -->|Raw Page Text| LLM[LLM API Engine]
-        
-        LLM -->|Generate| Draft[Application Draft & Header]
-        LLM -->|Extract| Keywords[File Search Keywords]
-
-        Draft -->|Cache URL & Draft text| Mongo[(MongoDB Atlas Storage)]
-        
-        Keywords --> BambooSearch[BambooHR Asset Search]
-        
-        subgraph File Processing Pipeline
-            BambooSearch -->|Apply Limit: Max 3 Files / Category| Downloader[Download & Zip Compress Files]
-        end
+graph LR
+    %% Main Vertical Flow for Scraping & Generation
+    subgraph Data Processing Pipeline [1. Ingestion & Generation]
+        direction TB
+        Start[Daily Cron Scheduler] --> CheckCache{Check MongoDB Cache}
+        CheckCache -->|Found| Skip[Skip Execution]
+        CheckCache -->|Not Found| Scraper[Web Scraper: Page Text]
+        Scraper --> LLM[LLM API Engine]
+        LLM --> Draft[Application Draft & Header]
+        LLM --> Keywords[File Keywords]
+        Draft --> Mongo[(MongoDB Atlas Storage)]
     end
 
-    %% Delivery & Cleanup
-    Draft --> TeamsNotifier[MS Teams Notification Bot]
-    Downloader -->|Attach Compressed Assets| TeamsNotifier
-    
-    TeamsNotifier -->|Notify Users & Provide Link| EndUser[Staff / Reviewers]
-    TeamsNotifier -->|Trigger Post-Run| Cleanup[Local Directory File Cleanup]
-    Cleanup --> Sleep[Reset State for Next Day]
+    %% File Handling Pipeline
+    subgraph File Engine [2. File Retrieval]
+        direction TB
+        Keywords --> Bamboo[BambooHR Asset Search]
+        Bamboo --> Limit[Limit: Max 3 Files / Category]
+        Limit --> Zip[Download & Zip Files]
+    end
+
+    %% Horizontal Move to Delivery & Cleanup
+    Draft --> Teams[MS Teams Notification Bot]
+    Zip -->|Attach Zip| Teams
+
+    subgraph Delivery & Cleanup [3. Delivery & Reset]
+        direction TB
+        Teams --> Notify[Notify Staff & Provide Link]
+        Notify --> Cleanup[Local File Cleanup]
+        Cleanup --> Reset[Reset State for Next Day]
+    end
 ```
 
 ## Key Achievements & Metrics
