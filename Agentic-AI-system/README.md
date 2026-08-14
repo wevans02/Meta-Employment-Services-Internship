@@ -7,16 +7,21 @@ An automated AI workforce that eliminates manual regulatory discovery and docume
 ```mermaid
 %%{init: { 'theme': 'dark', 'themeVariables': { 'lineColor': '#a1a1aa', 'labelColor': '#ffffff', 'primaryColor': '#1e293b', 'primaryTextColor': '#ffffff', 'actorLineColor': '#ffffff' }}}%%
 graph TD
-    Trigger[Scheduled Sync / User Invocation] --> AgentLoop[Custom Asynchronous Agent Manager]
+    Trigger[Cron / Daily Scheduler] --> CacheCheck{URL in MongoDB Cache?}
     
+    CacheCheck -->|Yes| Skip[Skip Processing]
+    CacheCheck -->|No| Scraper[Web Scraper & Text Extractor]
+
     subgraph Autonomous Orchestration Engine
-        AgentLoop -->|1. Target Web Scraping| Finder[Web Extraction Agent]
-        Finder -->|Raw Text Data| Filter[Compliance Analytics Parser]
-        Filter -->|Evaluate Eligibility Criteria| DraftEngine[Application Formulation Core]
+        Scraper -->|Extracted Web Text| LLM[LLM API Engine]
+        LLM -->|Header, Keywords & Draft| HRSearch[BambooHR Asset Search]
+        HRSearch -->|Filter & Max 3 Files/Type| ZipEngine[File Downloader & Compressor]
     end
+
+    LLM -->|Store Draft & Meta| Mongo[(MongoDB Atlas)]
+    ZipEngine -->|Attach Compressed Package| Teams[MS Teams Notification Bot]
     
-    DraftEngine -->|2. Generate Application Draft| Delivery[Document Packaging Module]
-    Delivery -->|3. Route Final Markdown/Email File| User[End-User Reviewer]
+    Teams --> Cleanup[Local File Cleanup & Reset]
 ```
 
 ## Key Achievements & Metrics
