@@ -6,36 +6,35 @@ An automated AI workforce that eliminates manual regulatory discovery and docume
 
 ```mermaid
 %%{init: { 'theme': 'dark', 'themeVariables': { 'lineColor': '#a1a1aa', 'labelColor': '#ffffff', 'primaryColor': '#1e293b', 'primaryTextColor': '#ffffff', 'actorLineColor': '#ffffff' }}}%%
-graph LR
-    %% Main Vertical Flow for Scraping & Generation
-    subgraph Data Processing Pipeline [1. Ingestion & Generation]
-        direction TB
-        Start[Daily Cron Scheduler] --> CheckCache{Check MongoDB Cache}
-        CheckCache -->|Found| Skip[Skip Execution]
-        CheckCache -->|Not Found| Scraper[Web Scraper: Page Text]
+graph TD
+    %% Step 1: Trigger & Cache Check
+    subgraph Step1 [1. Deduplication & Ingestion]
+        Start[Daily Cron Scheduler] --> CheckCache{Check MongoDB Cache<br/>for Opportunity URL}
+        CheckCache -->|URL Found| Skip[Skip Execution & Sleep]
+        CheckCache -->|URL Not Found| Scraper[Web Scraper: Collect Page Text]
+    end
+
+    %% Step 2: Generation & State Persistence
+    subgraph Step2 [2. LLM Generation & DB Persistence]
         Scraper --> LLM[LLM API Engine]
         LLM --> Draft[Application Draft & Header]
         LLM --> Keywords[File Keywords]
-        Draft --> Mongo[(MongoDB Atlas Storage)]
+        Draft -->|1. Save State Immediately| Mongo[(MongoDB Atlas Storage)]
     end
 
-    %% File Handling Pipeline
-    subgraph File Engine [2. File Retrieval]
-        direction TB
+    %% Step 3: Asset Retrieval & Compression
+    subgraph Step3 [3. File Retrieval & Packaging]
         Keywords --> Bamboo[BambooHR Asset Search]
-        Bamboo --> Limit[Limit: Max 3 Files / Category]
-        Limit --> Zip[Download & Zip Files]
+        Bamboo --> Limit[Apply Limit: Max 3 Files / Category]
+        Limit --> Zip[Download & Zip Compress Files]
     end
 
-    %% Horizontal Move to Delivery & Cleanup
-    Draft --> Teams[MS Teams Notification Bot]
-    Zip -->|Attach Zip| Teams
-
-    subgraph Delivery & Cleanup [3. Delivery & Reset]
-        direction TB
-        Teams --> Notify[Notify Staff & Provide Link]
-        Notify --> Cleanup[Local File Cleanup]
-        Cleanup --> Reset[Reset State for Next Day]
+    %% Step 4: Notification & Cleanup
+    subgraph Step4 [4. Delivery & Cleanup]
+        Draft -->|2. Send Text| Teams[MS Teams Notification Bot]
+        Zip -->|3. Attach Zip| Teams
+        Teams --> Notify[Notify Staff with Link]
+        Notify --> Cleanup[Local File Cleanup & Reset State]
     end
 ```
 
