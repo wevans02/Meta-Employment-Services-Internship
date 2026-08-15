@@ -7,7 +7,7 @@ An automated AI workforce that eliminates manual regulatory discovery and docume
 ```mermaid
 %%{init: { 'theme': 'dark', 'themeVariables': { 'lineColor': '#a1a1aa', 'labelColor': '#ffffff', 'primaryColor': '#1e293b', 'primaryTextColor': '#ffffff', 'actorLineColor': '#ffffff' }}}%%
 graph TD
-    %% Left Column: Ingestion & Draft Generation
+    %% Left Side: Ingestion & Core Generation
     Cron[Daily Cron Scheduler] --> CheckCache{Check MongoDB Cache<br/>for Opportunity URL}
     CheckCache -->|URL Found| Skip[Skip Execution & Sleep]
     CheckCache -->|URL Not Found| Scraper[Web Scraper: Collect Page Text]
@@ -15,20 +15,21 @@ graph TD
     Scraper --> LLM[LLM API Engine]
     LLM --> Draft[Application Draft & Header]
     LLM --> Keywords[File Keywords]
-    
-    Draft -->|1. Save State| Mongo[(MongoDB Atlas Storage)]
+    Draft -->|1. Early Persistence| Mongo[(MongoDB Atlas Storage)]
 
-    %% Right Column: Asset Retrieval & Delivery
+    %% Side-by-Side Anchor (Invisible link forces 2-column alignment)
+    Cron ~~~ Bamboo
+
+    %% Right Side: Asset Search, Delivery & Cleanup
     Keywords --> Bamboo[BambooHR Asset Search]
-    Bamboo --> Limit[Apply Limit: Max 3 Files / Category]
+    Bamboo --> Limit[Limit: Max 3 Files / Category]
     Limit --> Zip[Download & Zip Compress Files]
     
-    Draft -->|2. Send Draft Text| Teams[MS Teams Notification Bot]
-    Zip -->|3. Attach Zip Package| Teams
+    Draft -->|2. Send Draft| Teams[MS Teams Notification Bot]
+    Zip -->|3. Attach Zip| Teams
     
     Teams --> Notify[Notify Staff with Link]
-    Notify --> Cleanup[Local Directory File Cleanup]
-    Cleanup --> Reset[Reset State for Next Day]
+    Notify --> Cleanup[Local File Cleanup & Reset]
 ```
 
 ## Key Achievements & Metrics
