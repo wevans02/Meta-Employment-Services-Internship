@@ -7,40 +7,34 @@ An automated AI workforce that eliminates manual regulatory discovery and docume
 ```mermaid
 %%{init: { 'theme': 'dark', 'themeVariables': { 'lineColor': '#a1a1aa', 'labelColor': '#ffffff', 'primaryColor': '#1e293b', 'primaryTextColor': '#ffffff', 'actorLineColor': '#ffffff' }}}%%
 graph TD
-    %% Step 1
-    subgraph Step1 [1. Deduplication & Ingestion]
-        Start[Daily Cron Scheduler] --> CheckCache{Check MongoDB Cache<br/>for Opportunity URL}
+    %% Left Column: Ingestion & Draft Generation Pipeline
+    subgraph Ingestion & Persistence Pipeline
+        Cron[Daily Cron Scheduler] --> CheckCache{Check MongoDB Cache}
         CheckCache -->|URL Found| Skip[Skip Execution & Sleep]
         CheckCache -->|URL Not Found| Scraper[Web Scraper: Collect Page Text]
+        
+        Scraper --> LLM[LLM API Engine]
+        
+        LLM -->|Generate Text| Draft[Application Draft & Header]
+        LLM -->|Extract Search Terms| Keywords[File Keywords]
+        
+        Draft -->|Early Persistence| Mongo[(MongoDB Atlas Storage)]
     end
 
-    %% Connection 1 -> 2
-    Scraper --> LLM
-
-    %% Step 2
-    subgraph Step2 [2. LLM Generation & DB Persistence]
-        LLM[LLM API Engine] --> Draft[Application Draft & Header]
-        LLM --> Keywords[File Keywords]
-        Draft -->|1. Save State Immediately| Mongo[(MongoDB Atlas Storage)]
-    end
-
-    %% Connection 2 -> 3 (Forces Step 3 directly below Step 2)
-    Keywords --> Bamboo
-
-    %% Step 3
-    subgraph Step3 [3. File Retrieval & Packaging]
-        Bamboo[BambooHR Asset Search] --> Limit[Apply Limit: Max 3 Files / Category]
-        Limit --> Zip[Download & Zip Compress Files]
-    end
-
-    %% Connections 2/3 -> 4 (Forces Step 4 directly below Step 3)
-    Draft -->|2. Route Draft Text| Teams
-    Zip -->|3. Attach Compressed Package| Teams
-
-    %% Step 4
-    subgraph Step4 [4. Delivery & Cleanup]
-        Teams[MS Teams Notification Bot] --> Notify[Notify Staff with Link]
-        Notify --> Cleanup[Local File Cleanup & Reset State]
+    %% Right Column: Asset Packaging & Delivery Pipeline
+    subgraph Delivery & Packaging Pipeline
+        Keywords --> Bamboo[BambooHR Asset Search]
+        
+        subgraph File Constraints Engine
+            Bamboo --> Limit[Apply Limit: Max 3 Files / Category]
+            Limit --> Zip[Download & Zip Compress Files]
+        end
+        
+        Draft -->|Send Payload| Teams[MS Teams Notification Bot]
+        Zip -->|Attach Zip Package| Teams
+        
+        Teams --> Notify[Notify Staff with Link]
+        Notify --> Cleanup[Local Directory Cleanup & Reset]
     end
 ```
 
