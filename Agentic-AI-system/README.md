@@ -6,40 +6,29 @@ An automated AI workforce that eliminates manual regulatory discovery and docume
 
 ```mermaid
 %%{init: { 'theme': 'dark', 'themeVariables': { 'lineColor': '#a1a1aa', 'labelColor': '#ffffff', 'primaryColor': '#1e293b', 'primaryTextColor': '#ffffff', 'actorLineColor': '#ffffff' }}}%%
-graph LR
-    %% Column 1: Ingestion & Deduplication
-    subgraph Ingestion [1. Ingestion & Cache]
-        direction TB
-        Cron[Daily Cron Scheduler] --> CheckCache{MongoDB Cache?}
-        CheckCache -->|Found| Skip[Skip & Sleep]
-        CheckCache -->|Not Found| Scraper[Web Scraper]
-    end
+graph TD
+    %% Left Column: Ingestion & Draft Generation
+    Cron[Daily Cron Scheduler] --> CheckCache{Check MongoDB Cache<br/>for Opportunity URL}
+    CheckCache -->|URL Found| Skip[Skip Execution & Sleep]
+    CheckCache -->|URL Not Found| Scraper[Web Scraper: Collect Page Text]
+    
+    Scraper --> LLM[LLM API Engine]
+    LLM --> Draft[Application Draft & Header]
+    LLM --> Keywords[File Keywords]
+    
+    Draft -->|1. Save State| Mongo[(MongoDB Atlas Storage)]
 
-    %% Column 2: LLM Engine & Early Storage
-    subgraph Core [2. LLM Core & DB]
-        direction TB
-        Scraper --> LLM[LLM API Engine]
-        LLM --> Draft[Application Draft]
-        LLM --> Keywords[File Keywords]
-        Draft --> Mongo[(MongoDB Atlas)]
-    end
-
-    %% Column 3: Asset Packaging
-    subgraph Packaging [3. Asset Packaging]
-        direction TB
-        Keywords --> Bamboo[BambooHR Search]
-        Bamboo --> Limit[Limit: Max 3/Cat]
-        Limit --> Zip[Zip Compress]
-    end
-
-    %% Column 4: Delivery & Cleanup
-    subgraph Delivery [4. Delivery & Reset]
-        direction TB
-        Draft --> Teams[MS Teams Bot]
-        Zip --> Teams
-        Teams --> Notify[Notify Staff]
-        Notify --> Cleanup[Cleanup & Reset]
-    end
+    %% Right Column: Asset Retrieval & Delivery
+    Keywords --> Bamboo[BambooHR Asset Search]
+    Bamboo --> Limit[Apply Limit: Max 3 Files / Category]
+    Limit --> Zip[Download & Zip Compress Files]
+    
+    Draft -->|2. Send Draft Text| Teams[MS Teams Notification Bot]
+    Zip -->|3. Attach Zip Package| Teams
+    
+    Teams --> Notify[Notify Staff with Link]
+    Notify --> Cleanup[Local Directory File Cleanup]
+    Cleanup --> Reset[Reset State for Next Day]
 ```
 
 ## Key Achievements & Metrics
