@@ -7,33 +7,39 @@ An automated AI workforce that eliminates manual regulatory discovery and docume
 ```mermaid
 %%{init: { 'theme': 'dark', 'themeVariables': { 'lineColor': '#a1a1aa', 'labelColor': '#ffffff', 'primaryColor': '#1e293b', 'primaryTextColor': '#ffffff', 'actorLineColor': '#ffffff' }}}%%
 graph TD
-    %% Step 1: Trigger & Cache Check
+    %% Step 1
     subgraph Step1 [1. Deduplication & Ingestion]
         Start[Daily Cron Scheduler] --> CheckCache{Check MongoDB Cache<br/>for Opportunity URL}
         CheckCache -->|URL Found| Skip[Skip Execution & Sleep]
         CheckCache -->|URL Not Found| Scraper[Web Scraper: Collect Page Text]
     end
 
-    %% Step 2: Generation & State Persistence
+    %% Connection 1 -> 2
+    Scraper --> LLM
+
+    %% Step 2
     subgraph Step2 [2. LLM Generation & DB Persistence]
-        Scraper --> LLM[LLM API Engine]
-        LLM --> Draft[Application Draft & Header]
+        LLM[LLM API Engine] --> Draft[Application Draft & Header]
         LLM --> Keywords[File Keywords]
         Draft -->|1. Save State Immediately| Mongo[(MongoDB Atlas Storage)]
     end
 
-    %% Step 3: Asset Retrieval & Compression
+    %% Connection 2 -> 3 (Forces Step 3 directly below Step 2)
+    Keywords --> Bamboo
+
+    %% Step 3
     subgraph Step3 [3. File Retrieval & Packaging]
-        Keywords --> Bamboo[BambooHR Asset Search]
-        Bamboo --> Limit[Apply Limit: Max 3 Files / Category]
+        Bamboo[BambooHR Asset Search] --> Limit[Apply Limit: Max 3 Files / Category]
         Limit --> Zip[Download & Zip Compress Files]
     end
 
-    %% Step 4: Notification & Cleanup
+    %% Connections 2/3 -> 4 (Forces Step 4 directly below Step 3)
+    Draft -->|2. Route Draft Text| Teams
+    Zip -->|3. Attach Compressed Package| Teams
+
+    %% Step 4
     subgraph Step4 [4. Delivery & Cleanup]
-        Draft -->|2. Send Text| Teams[MS Teams Notification Bot]
-        Zip -->|3. Attach Zip| Teams
-        Teams --> Notify[Notify Staff with Link]
+        Teams[MS Teams Notification Bot] --> Notify[Notify Staff with Link]
         Notify --> Cleanup[Local File Cleanup & Reset State]
     end
 ```
